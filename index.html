@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  
+    <style>
+        :root {
+            --bg-base: #0f172a;
+            --bg-panel: #1e293b;
+            --accent: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            text-align: center;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        h2 { color: #38bdf8; margin-top: 0; font-size: 22px; }
+        p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+        
+        .hero-img { font-size: 55px; margin: 15px 0; }
+        
+        .main-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.2s;
+        }
+        .main-btn:hover { background: #1d4ed8; }
+
+        .networks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .sim-card {
+            background: #0f172a;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .sim-card.selected { 
+            background: #334155; 
+            border-color: #38bdf8;
+            transform: scale(1.03); 
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .net-title { font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+        .net-gb { font-size: 15px; font-weight: 900; color: #38bdf8; margin-bottom: 4px; }
+        .net-price { background: #dc2626; color: #fff; font-size: 11px; padding: 3px 6px; border-radius: 6px; font-weight: bold; margin-top: 4px; width: 100%; }
+
+        .sim-card.mobilis .net-title { color: #34d399; }
+        .sim-card.djezzy .net-title { color: #f87171; }
+        .sim-card.ooredoo .net-title { color: #facc15; }
+
+        .input-group {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+        .input-group input, .input-group select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent); }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            text-align: right;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 1s linear infinite;
+            margin: 25px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- الشاشة الأولى -->
+        <div class="screen active" id="screen1">
+            <div class="hero-img">📱</div>
+            <h2>منصة العروض المجانية</h2>
+            <p>اختر العرض الخاص بشباك المشغلين في الجزائر بقيمة 0 دينار.</p>
+            <button class="main-btn" onclick="goToScreen('screen2')">عرض البطاقات المتاحة</button>
+        </div>
+
+        <!-- الشاشة الثانية: اختيار الشبكة بالبطاقات المطابقة وبسعر 0 دينار -->
+        <div class="screen" id="screen2">
+            <h2>اختر الشريحة</h2>
+            <p>جميع العروض متاحة الآن بدون أي رسوم</p>
+            
+            <div class="networks-grid">
+                <!-- شريحة موبيليس -->
+                <div class="sim-card mobilis" onclick="selectNet('شريحة موبيليس (100 جيغا)', '06', this)">
+                    <div class="net-title">موبيليس</div>
+                    <div class="net-gb">100 جيغا</div>
+                    <div style="font-size: 10px; color: #94a3b8;">مكالمات مجانية</div>
+                    <div class="net-price">0 دينار</div>
+                </div>
+                <!-- شريحة جيزي -->
+                <div class="sim-card djezzy" onclick="selectNet('شريحة جيزي (120 جيغا - ليجند)', '07', this)">
+                    <div class="net-title">جيزي</div>
+                    <div class="net-gb">120 جيغا</div>
+                    <div style="font-size: 10px; color: #94a3b8;">ليجند</div>
+                    <div class="net-price">0 دينار</div>
+                </div>
+                <!-- شريحة أوريدو -->
+                <div class="sim-card ooredoo" onclick="selectNet('شريحة أوريدو (100 جيغا)', '05', this)">
+                    <div class="net-title">أوريدو</div>
+                    <div class="net-gb">100 جيغا</div>
+                    <div style="font-size: 10px; color: #94a3b8;">مكالمات مجانية</div>
+                    <div class="net-price">0 دينار</div>
+                </div>
+            </div>
+
+            <button class="main-btn" id="nextToForm" style="opacity: 0.5; pointer-events: none;" onclick="goToScreen('screen3')">المتابعة لتسجيل الطلب</button>
+        </div>
+
+        <!-- الشاشة الثالثة: إدخال الرقم والتدقيق الصارم -->
+        <div class="screen" id="screen3">
+            <h2>تأكيد الطلب المجاني</h2>
+            <p id="selectedNetText" style="color: #38bdf8; font-weight: bold; margin-bottom: 10px;"></p>
+            
+            <div class="input-group">
+                <label id="phoneLabel">رقم الهاتف الحقيقي</label>
+                <input type="tel" id="phoneNumber" placeholder="" maxlength="10" oninput="validateRealPhone()">
+                <div class="error-msg" id="phoneError"></div>
+            </div>
+
+            <div class="input-group">
+                <label>نوع الخدمة</label>
+                <select id="packageSize">
+                    <option value="active">تفعيل العرض المجاني (0 دج)</option>
+                </select>
+            </div>
+
+            <button class="main-btn" onclick="submitProcess()">تأكيد الاستفادة</button>
+        </div>
+
+        <!-- الشاشة الرابعة: النتيجة -->
+        <div class="screen" id="screen4">
+            <div id="loadingBox">
+                <h2>جاري معالجة الطلب المجاني...</h2>
+                <div class="loading-spinner"></div>
+                <p>يتم التحقق من صحة الرقم في النظام...</p>
+            </div>
+            
+            <div id="successBox" style="display: none;">
+                <div class="hero-img">✅</div>
+                <h2 style="color: #10b981;">تم تفعيل العرض بنجاح!</h2>
+                <p>تم التحقق من صحة الرقم وتسجيل الباقة المجانية بقيمة 0 دينار.</p>
+                <button class="main-btn" onclick="location.reload()">طلب جديد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chosenNetwork = "";
+        let requiredPrefix = "";
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function selectNet(netName, prefix, element) {
+            document.querySelectorAll('.sim-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            chosenNetwork = netName;
+            requiredPrefix = prefix;
+            
+            document.getElementById('selectedNetText').innerText = netName;
+            document.getElementById('phoneLabel').innerText = `أدخل رقم ${netName} (يجب أن يبدأ بـ ${prefix})`;
+            document.getElementById('phoneNumber').placeholder = `${prefix}XXXXXXXX`;
+            document.getElementById('phoneNumber').value = prefix;
+            
+            const btn = document.getElementById('nextToForm');
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+        }
+
+        function validateRealPhone() {
+            const phoneInput = document.getElementById('phoneNumber');
+            const errorDiv = document.getElementById('phoneError');
+            let val = phoneInput.value.trim();
+
+            const fakePatterns = [
+                /^0[567](\d)\1{7}$/,
+                /^0[567]12345678$/,
+                /^0[567]00000000$/,
+                /^0[567]11111111$/,
+                /^0[567]99999999/
+            ];
+
+            let isFake = fakePatterns.some(pattern => pattern.test(val));
+
+            if (!val.startsWith(requiredPrefix)) {
+                errorDiv.innerText = `خطأ: أرقام هذه الشبكة يجب أن تبدأ حصرياً بالبادئة ${requiredPrefix}`;
+                errorDiv.style.display = 'block';
+                return false;
+            } else if (val.length < 10) {
+                errorDiv.innerText = `الرقم قصير جداً، يرجى إدخال 10 أرقام كاملة.`;
+                errorDiv.style.display = 'block';
+                return false;
+            } else if (isFake) {
+                errorDiv.innerText = `عذراً، هذا الرقم غير مقبول، يرجى كتابة رقم حقيقي وصحيح.`;
+                errorDiv.style.display = 'block';
+                return false;
+            } else {
+                errorDiv.style.display = 'none';
+                return true;
+            }
+        }
+
+        function submitProcess() {
+            const phone = document.getElementById('phoneNumber').value.trim();
+            
+            if (!validateRealPhone() || phone.length !== 10) {
+                alert("يرجى التأكد من إدخال رقم هاتف حقيقي ومكتمل الشروط أولاً!");
+                return;
+            }
+
+            goToScreen('screen4');
+
+            setTimeout(() => {
+                document.getElementById('loadingBox').style.display = 'none';
+                document.getElementById('successBox').style.display = 'block';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
